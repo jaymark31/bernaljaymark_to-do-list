@@ -1,4 +1,9 @@
 import express from 'express';
+import pool from './db.js';
+
+const result = await pool.query('SELECT NOW()');
+console.log(result.rows);
+
 
 const app = express();
 app.use(express.json());
@@ -74,17 +79,23 @@ app.get('/delete-list', (req, res) => {
   res.send('Welcome to delete list!');
 });
 
-app. get('/get-items/:id', (req, res) => {
+app.get('/get-items/:id', (req, res) => {
   const listID = req.params.id;
 
   const filtered = items.filter(
   item => item.list_id == listID);
   
   if (filtered.length === 0) {
-    res.status(200).json({ success: false, message: 'list not found'});
+    return res.status(404).json({ success: false, message: 'list not found'});
   }
-  res.status(200).json({success: true, items: filtered})
+
+  return res.status(200).json({success: true, items: filtered});
 }); 
+
+
+app.get('/get-items', (req, res) => {
+  return res.status(200).json({ success: true, items });
+});
 
 
 app.get('./add-list', (req, res) => {
