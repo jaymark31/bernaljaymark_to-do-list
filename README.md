@@ -10,9 +10,9 @@ A simple To-Do List application built with React (frontend) and Node.js (backend
 ### Login Page
 ![Login](image/login.png)
 
-### To-Do List
+### Home
 ![Todo](image/todo.png)
 
-### Task List 
+### Home
 ![List](image/list.png)
 
