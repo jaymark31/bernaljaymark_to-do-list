@@ -205,6 +205,119 @@ app.post('/api/logout', (req, res) => {
   })
 })
 
+
+// GET all lists
+app.get('/api/lists', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT id, title, status, description, created_at FROM lists ORDER BY created_at DESC'
+    )
+    res.json({ success: true, lists: result.rows })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ success: false, message: 'Error fetching lists' })
+  }
+})
+
+// CREATE new list
+app.post('/api/lists', async (req, res) => {
+  const { title, description, status } = req.body
+  if (!title) return res.status(400).json({ success: false, message: 'Title is required' })
+
+  try {
+    const result = await pool.query(
+      'INSERT INTO lists (title, description, status) VALUES ($1, $2, $3) RETURNING *',
+      [title, description || '', status || 'pending']
+    )
+    res.status(201).json({ success: true, list: result.rows[0] })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ success: false, message: 'Error creating list' })
+  }
+})
+
+// UPDATE list
+app.put('/api/lists/:id', async (req, res) => {
+  const { id } = req.params
+  const { title, description, status } = req.body
+  try {
+    const result = await pool.query(
+      'UPDATE lists SET title=$1, description=$2, status=$3 WHERE id=$4 RETURNING *',
+      [title, description, status, id]
+    )
+    res.json({ success: true, list: result.rows[0] })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ success: false })
+  }
+})
+
+// DELETE list
+app.delete('/api/lists/:id', async (req, res) => {
+  const { id } = req.params
+  try {
+    await pool.query('DELETE FROM lists WHERE id=$1', [id])
+    res.json({ success: true })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ success: false })
+  }
+})
+
+// ✅ ITEMS API ENDPOINTS
+
+// CREATE new item
+app.post('/add-item', async (req, res) => {
+  const { list_id, description } = req.body
+  
+  if (!list_id || !description) {
+    return res.status(400).json({ success: false, message: 'list_id and description are required' })
+  }
+
+  try {
+    const result = await pool.query(
+      'INSERT INTO items (list_id, description, status) VALUES ($1, $2, $3) RETURNING *',
+      [list_id, description, 'pending']
+    )
+    res.status(201).json({ success: true, item: result.rows[0] })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ success: false, message: 'Error creating item' })
+  }
+})
+
+// UPDATE item status
+app.put('/edit-item/:id', async (req, res) => {
+  const { id } = req.params
+  const { description, status } = req.body
+
+  try {
+    const result = await pool.query(
+      'UPDATE items SET description=$1, status=$2 WHERE id=$3 RETURNING *',
+      [description, status, id]
+    )
+    res.json({ success: true, item: result.rows[0] })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ success: false })
+  }
+})
+
+// DELETE item
+app.delete('/delete-item/:id', async (req, res) => {
+  const { id } = req.params
+
+  try {
+    await pool.query('DELETE FROM items WHERE id=$1', [id])
+    res.json({ success: true })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ success: false })
+  }
+})
+
+
 app.listen(PORT, () => {
   console.log(`✅ Server running on http://localhost:${PORT}`)
 })
+
