@@ -33,6 +33,14 @@ app.use(session({
   }
 }))
 
+// 🔥 DB CONNECTION TEST (PUT IT HERE)
+try {
+  const result = await pool.query('SELECT 1');
+  console.log('✅ DATABASE CONNECTED');
+} catch (err) {
+  console.error('❌ DATABASE CONNECTION FAILED:', err.message);
+}
+
 const list = [
   {
     id: 1,
