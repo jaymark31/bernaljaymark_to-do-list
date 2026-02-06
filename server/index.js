@@ -9,29 +9,35 @@ const PORT = 5000
 
 // ✅ CORS (MUST BE FIRST)
 app.use(cors({
-  origin: 'http://localhost:5173',
-  origin :'https://bernaljaymark-to-do-list.vercel.app',
+  origin: [
+    'http://localhost:5173',
+    'https://bernaljaymark-to-do-list.vercel.app'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
-}))
+}));
 
-app.options('*', cors())
+app.options('*', cors());
 
-// ✅ Body parser
-app.use(express.json())
+/* ================================
+   ✅ BODY PARSER
+================================ */
+app.use(express.json());
 
-// ✅ Session
+/* ================================
+   ✅ SESSION
+================================ */
 app.use(session({
   secret: '123456789',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false,   // true only if HTTPS
+    secure: false,      // true only if HTTPS
     httpOnly: true,
     sameSite: 'lax'
   }
-}))
+}));
 
 // 🔥 DB CONNECTION TEST (PUT IT HERE)
 try {
