@@ -3,26 +3,17 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// Fix for "SECURITY WARNING" about sslmode
-let connectionString = process.env.DATABASE_URL;
-if (connectionString) {
-  try {
-    const url = new URL(connectionString);
-    url.searchParams.delete('sslmode');
-    connectionString = url.toString();
-  } catch (err) {
-    console.error('Error parsing DATABASE_URL:', err);
-  }
-}
-
 const pool = new Pool({
-  connectionString,
+  user: "neondb_owner",
+  host: "ep-gentle-fog-a1j0swvk-pooler.ap-southeast-1.aws.neon.tech",
+  database: "neondb",
+  password: "npg_7Gwt3DjHIQoc",
+  port: 5432,
   ssl: {
-    rejectUnauthorized: true, // ✅ verify the certificate
-  },
+    rejectUnauthorized: true
+  }
 });
 
-// Test connection
 pool.connect()
   .then(() => console.log("✅ Database connected"))
   .catch(err => console.error("❌ DATABASE CONNECTION FAILED:", err));
