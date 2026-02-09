@@ -4,14 +4,10 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const pool = new Pool({
-  user: "neondb_owner",
-  host: "ep-gentle-fog-a1j0swvk-pooler.ap-southeast-1.aws.neon.tech",
-  database: "neondb",
-  password: "npg_7Gwt3DjHIQoc",
-  port: 5432,
+  connectionString: process.env.DATABASE_URL, // keep full Neon URL as-is
   ssl: {
-    rejectUnauthorized: true
-  }
+    rejectUnauthorized: false, // ⚡ allows Render to connect safely
+  },
 });
 
 pool.connect()
