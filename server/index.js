@@ -5,7 +5,7 @@ import { hashPassword, comparePassword } from './components/hash.js'
 import session from 'express-session'
 
 const app = express()
-const PORT = 5000
+const PORT = process.env.PORT || 5000
 
 // ✅ CORS (MUST BE FIRST)
 app.use(cors({
@@ -284,7 +284,7 @@ app.delete('/api/lists/:id', async (req, res) => {
 // CREATE new item
 app.post('/add-item', async (req, res) => {
   const { list_id, description } = req.body
-  
+
   if (!list_id || !description) {
     return res.status(400).json({ success: false, message: 'list_id and description are required' })
   }
