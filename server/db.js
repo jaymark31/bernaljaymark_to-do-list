@@ -4,26 +4,14 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-let pool;
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === "production"
+    ? { rejectUnauthorized: false }
+    : false,
+});
 
-if (process.env.NODE_ENV === "development") {
-  // Local Development
-  pool = new Pool({
-    host: process.env.DB_HOST || "localhost",
-    user: process.env.DB_USER || "postgres",
-    password: process.env.DB_PASSWORD || "033105",
-    database: process.env.DB_NAME || "to_do_list",
-    port: process.env.DB_PORT || 5432,
-  });
-} else {
-  // Production (Neon)
-  pool = new Pool({
-    connectionString: process.env.DATABASE_URL, // <--- use the full Neon URL here
-    ssl: { rejectUnauthorized: false }, // Neon requires SSL
-  });
-}
-
-// Optional: test connection
+// Test connection
 pool.connect()
   .then(() => console.log("✅ Database connected"))
   .catch(err => console.error("❌ DATABASE CONNECTION FAILED:", err));
