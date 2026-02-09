@@ -3,8 +3,14 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+// Fix for "SECURITY WARNING" about sslmode
+let connectionString = process.env.DATABASE_URL;
+if (connectionString) {
+  connectionString = connectionString.replace(/(\?|&)sslmode=require/, '');
+}
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString,
   ssl: {
     rejectUnauthorized: true, // ✅ verify the certificate
   },
