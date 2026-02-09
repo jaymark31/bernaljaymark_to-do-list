@@ -28,14 +28,23 @@ app.use(express.json());
 /* ================================
    ✅ SESSION
 ================================ */
+import connectPgSimple from 'connect-pg-simple'
+
+const PgSession = connectPgSimple(session)
+
 app.use(session({
+  store: new PgSession({
+    pool: pool,
+    createTableIfMissing: true
+  }),
   secret: '123456789',
   resave: false,
   saveUninitialized: false,
   cookie: {
     secure: false,      // true only if HTTPS
     httpOnly: true,
-    sameSite: 'lax'
+    sameSite: 'lax',
+    maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
   }
 }));
 
