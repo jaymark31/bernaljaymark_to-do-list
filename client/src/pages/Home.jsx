@@ -16,27 +16,24 @@ function Home() {
   const [tasks, setTasks] = useState([])
 
   // Fetch lists from backend on mount
-  useEffect(() => {
-    fetchLists()
-  }, [])
-
   const fetchLists = async () => {
-    try {
-      setLoading(true)
-      const response = await fetch(`${API_URL}/api/lists`)
-      const data = await response.json()
-      if (data.success) {
-        setLists(data.lists)
-      } else {
-        setError('Failed to load lists')
-      }
-    } catch (err) {
-      setError('Error connecting to server')
-      console.error(err)
-    } finally {
-      setLoading(false)
+  try {
+    setLoading(true)
+    const response = await fetch(`${API_URL}/api/lists`) // only one /api
+    const data = await response.json()
+    if (data.success) {
+      setLists(data.lists)
+    } else {
+      setError('Failed to load lists')
     }
+  } catch (err) {
+    setError('Error connecting to server')
+    console.error(err)
+  } finally {
+    setLoading(false)
   }
+}
+
 
   const addList = async (title, description = '') => {
     try {
