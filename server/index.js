@@ -1,61 +1,36 @@
 import express from 'express'
 import cors from 'cors'
-import pool from "./db.js"
+import pool from './db.js'
 import { hashPassword, comparePassword } from './components/hash.js'
 import session from 'express-session'
 
 const app = express()
-const PORT = process.env.PORT || 5000
+const PORT = 5000
 
-// ✅ CORS (MUST BE FIRST) – include all frontend origins (Vercel + local)
+// ✅ CORS (MUST BE FIRST)
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'https://bernaljaymark-to-do-list.vercel.app',
-    'https://bernaljaymark-to-do-list-150ek8qqa.vercel.app'
-  ],
+  origin: 'http://localhost:5173',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
-}));
+}))
 
-app.options('*', cors());
+app.options('*', cors())
 
-/* ================================
-   ✅ BODY PARSER
-================================ */
-app.use(express.json());
+// ✅ Body parser
+app.use(express.json())
 
-/* ================================
-   ✅ SESSION
-================================ */
-import connectPgSimple from 'connect-pg-simple'
-
-const PgSession = connectPgSimple(session)
-
+// ✅ Session
 app.use(session({
-  store: new PgSession({
-    pool: pool,
-    createTableIfMissing: true
-  }),
   secret: '123456789',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production', // required for HTTPS (Render + Vercel)
+    secure: false,   // true only if HTTPS
     httpOnly: true,
-    sameSite: 'lax',
-    maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    sameSite: 'lax'
   }
-}));
-
-// 🔥 DB CONNECTION TEST (PUT IT HERE)
-try {
-  const result = await pool.query('SELECT 1');
-  console.log('✅ DATABASE CONNECTED');
-} catch (err) {
-  console.error('❌ DATABASE CONNECTION FAILED:', err.message);
-}
+}))
 
 const list = [
   {
@@ -180,18 +155,14 @@ app.post('/api/register', async (req, res) => {
   }
 })
 
-// ✅ LOGIN – accept either name or username (so users can sign in with either)
+// ✅ LOGIN (MATCHES FRONTEND)
 app.post('/api/login', async (req, res) => {
   const { name, password } = req.body
-  const loginValue = (name || '').trim()
-  if (!loginValue || !password) {
-    return res.status(400).json({ success: false, message: 'Name and password are required' })
-  }
 
   try {
     const result = await pool.query(
-      'SELECT * FROM user_accounts WHERE name = $1 OR username = $1',
-      [loginValue]
+      'SELECT * FROM user_accounts WHERE name = $1',
+      [name]
     )
 
     if (result.rows.length === 0) {
@@ -298,7 +269,7 @@ app.delete('/api/lists/:id', async (req, res) => {
 // CREATE new item
 app.post('/add-item', async (req, res) => {
   const { list_id, description } = req.body
-
+  
   if (!list_id || !description) {
     return res.status(400).json({ success: false, message: 'list_id and description are required' })
   }

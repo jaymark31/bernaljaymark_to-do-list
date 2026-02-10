@@ -2,8 +2,7 @@ import Header from '../components/Header.jsx'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const API_URL = import.meta.env.VITE_API_URL
-
+const API_URL = 'http://localhost:5000'
 
 function Home() {
   const navigate = useNavigate()
@@ -16,24 +15,27 @@ function Home() {
   const [tasks, setTasks] = useState([])
 
   // Fetch lists from backend on mount
-  const fetchLists = async () => {
-  try {
-    setLoading(true)
-    const response = await fetch(`${API_URL}/api/lists`) // only one /api
-    const data = await response.json()
-    if (data.success) {
-      setLists(data.lists)
-    } else {
-      setError('Failed to load lists')
-    }
-  } catch (err) {
-    setError('Error connecting to server')
-    console.error(err)
-  } finally {
-    setLoading(false)
-  }
-}
+  useEffect(() => {
+    fetchLists()
+  }, [])
 
+  const fetchLists = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch(`${API_URL}/api/lists`)
+      const data = await response.json()
+      if (data.success) {
+        setLists(data.lists)
+      } else {
+        setError('Failed to load lists')
+      }
+    } catch (err) {
+      setError('Error connecting to server')
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const addList = async (title, description = '') => {
     try {
@@ -173,7 +175,13 @@ function Home() {
           </div>
         </div>
 
-       
+        {/* Loading state */}
+        {loading && (
+          <div className="text-center py-12">
+            <p className="text-gray-600">Loading lists...</p>
+          </div>
+        )}
+
         {/* Error state */}
         {error && (
           <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg">
