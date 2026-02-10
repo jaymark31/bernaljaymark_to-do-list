@@ -16,11 +16,11 @@ function Home() {
   const [isEditing, setIsEditing] = useState(false)
   const [tasks, setTasks] = useState([])
 
-  // Fetch lists from backend on mount
-  const fetchLists = async () => {
+ // Fetch lists from backend on mount
+const fetchLists = async () => {
   try {
     setLoading(true)
-    const response = await fetch(`${API_URL}/api/lists`) // only one /api
+    const response = await fetch(`${API_URL}/lists`) // remove extra /api
     const data = await response.json()
     if (data.success) {
       setLists(data.lists)
@@ -34,6 +34,7 @@ function Home() {
     setLoading(false)
   }
 }
+
 
   // Fetch tasks for a specific list
   const fetchTasks = async (listId) => {
