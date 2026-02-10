@@ -67,14 +67,14 @@ function Login() {
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
             <label className="block mb-2 font-semibold text-gray-800 text-sm">
-              Name
+              Username or name
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              placeholder="Enter your  name"
+              placeholder="Enter your username or name"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg text-base transition-all duration-300 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100"
             />
           </div>

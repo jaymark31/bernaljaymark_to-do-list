@@ -7,11 +7,12 @@ import session from 'express-session'
 const app = express()
 const PORT = process.env.PORT || 5000
 
-// ✅ CORS (MUST BE FIRST)
+// ✅ CORS (MUST BE FIRST) – include all frontend origins (Vercel + local)
 app.use(cors({
   origin: [
     'http://localhost:5173',
-    'https://bernaljaymark-to-do-list.vercel.app'
+    'https://bernaljaymark-to-do-list.vercel.app',
+    'https://bernaljaymark-to-do-list-150ek8qqa.vercel.app'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -41,7 +42,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false,      // true only if HTTPS
+    secure: process.env.NODE_ENV === 'production', // required for HTTPS (Render + Vercel)
     httpOnly: true,
     sameSite: 'lax',
     maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
@@ -179,14 +180,18 @@ app.post('/api/register', async (req, res) => {
   }
 })
 
-// ✅ LOGIN (MATCHES FRONTEND)
+// ✅ LOGIN – accept either name or username (so users can sign in with either)
 app.post('/api/login', async (req, res) => {
   const { name, password } = req.body
+  const loginValue = (name || '').trim()
+  if (!loginValue || !password) {
+    return res.status(400).json({ success: false, message: 'Name and password are required' })
+  }
 
   try {
     const result = await pool.query(
-      'SELECT * FROM user_accounts WHERE name = $1',
-      [name]
+      'SELECT * FROM user_accounts WHERE name = $1 OR username = $1',
+      [loginValue]
     )
 
     if (result.rows.length === 0) {
