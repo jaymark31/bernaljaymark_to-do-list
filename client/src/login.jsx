@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
@@ -22,14 +22,15 @@ function Login() {
       const response = await axios.post(
         `${API_URL}/login`,
         { name, password },
-        { withCredentials: true } 
+        { withCredentials: true }
       )
 
-      if (response.data.success) {
+      // If backend returns 200, login is successful
+      if (response.status === 200) {
         setMessage('Login successful! Redirecting...')
         setMessageType('success')
         setTimeout(() => {
-          navigate('/Home')
+          navigate('/home') // make sure your route is "/home"
         }, 1500)
       } else {
         setMessage(response.data.message || 'Invalid credentials')
@@ -37,7 +38,9 @@ function Login() {
       }
     } catch (error) {
       console.error('Login error:', error)
-      setMessage(error.response?.data?.message || 'Login failed. Please try again.')
+      setMessage(
+        error.response?.data?.message || 'Login failed. Please try again.'
+      )
       setMessageType('error')
     } finally {
       setLoading(false)
@@ -55,11 +58,13 @@ function Login() {
         </p>
 
         {message && (
-          <div className={`px-4 py-3 rounded-lg mb-6 text-sm ${
-            messageType === 'success'
-              ? 'bg-green-50 border border-green-200 text-green-700'
-              : 'bg-red-50 border border-red-200 text-red-700'
-          }`}>
+          <div
+            className={`px-4 py-3 rounded-lg mb-6 text-sm ${
+              messageType === 'success'
+                ? 'bg-green-50 border border-green-200 text-green-700'
+                : 'bg-red-50 border border-red-200 text-red-700'
+            }`}
+          >
             {message}
           </div>
         )}
@@ -104,7 +109,13 @@ function Login() {
 
         <div className="text-center mt-6 pt-6 border-t border-gray-200">
           <p className="text-gray-600 text-sm">
-            Don't have an account? <a href="/Register" className="text-orange-500 font-semibold hover:text-orange-600 no-underline">Sign up</a>
+            Don't have an account?{' '}
+            <Link
+              to="/register"
+              className="text-orange-500 font-semibold hover:text-orange-600 no-underline"
+            >
+              Sign up
+            </Link>
           </p>
         </div>
       </div>
