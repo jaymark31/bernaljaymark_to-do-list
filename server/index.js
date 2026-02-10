@@ -7,7 +7,7 @@ import session from 'express-session'
 const app = express()
 const PORT = 5000
 
-import cors from "cors";
+
 
 // Allow both local dev and deployed frontend
 const allowedOrigins = [
