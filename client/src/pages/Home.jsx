@@ -173,13 +173,7 @@ function Home() {
           </div>
         </div>
 
-        {/* Loading state */}
-        {loading && (
-          <div className="text-center py-12">
-            <p className="text-gray-600">Loading lists...</p>
-          </div>
-        )}
-
+       
         {/* Error state */}
         {error && (
           <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg">
