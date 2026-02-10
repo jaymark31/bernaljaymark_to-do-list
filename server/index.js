@@ -11,7 +11,6 @@ import cors from "cors";
 
 const allowedOrigins = [
   'http://localhost:5173', // local dev
-  'https://bernaljaymark-to-do-list.vercel.app',
   'https://bernaljaymark-to-do-git-8e356d-bernaljaymarkmark-5902s-projects.vercel.app',
   'https://bernaljaymark-to-do-list-39liou645.vercel.app'
 ];
