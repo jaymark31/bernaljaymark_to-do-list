@@ -2,7 +2,8 @@ import Header from '../components/Header.jsx'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const API_URL = 'http://localhost:5000'
+const API_URL = import.meta.env.VITE_API_URL
+
 
 function Home() {
   const navigate = useNavigate()
