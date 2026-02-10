@@ -1,5 +1,4 @@
 import express from 'express'
-import cors from 'cors'
 import pool from './db.js'
 import { hashPassword, comparePassword } from './components/hash.js'
 import session from 'express-session'
@@ -7,25 +6,28 @@ import session from 'express-session'
 const app = express()
 const PORT = 5000
 
+import cors from "cors";
 
-
-// Allow both local dev and deployed frontend
 const allowedOrigins = [
-  'http://localhost:5173', // dev
-  'https://bernaljaymark-to-do-list-39liou645.vercel.app' // deployed frontend
+  'http://localhost:5173', // local dev
+  'https://bernaljaymark-to-do-git-8e356d-bernaljaymarkmark-5902s-projects.vercel.app',
+  'https://bernaljaymark-to-do-list-39liou645.vercel.app'
 ];
 
 app.use(cors({
   origin: function(origin, callback) {
-    // allow requests with no origin like mobile apps or curl
+    // allow requests with no origin (like Postman or server-to-server)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = `The CORS policy for this site does not allow access from the specified Origin.`;
-      return callback(new Error(msg), false);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true); // allow this origin
+    } else {
+      callback(new Error(`CORS policy: origin ${origin} is not allowed.`));
     }
-    return callback(null, true);
   },
-  credentials: true, // if you need cookies/auth
+  credentials: true, 
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.options('*', cors())
