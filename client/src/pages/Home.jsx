@@ -2,7 +2,9 @@ import Header from '../components/Header.jsx'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const API_URL = 'http://localhost:5000'
+const API_URL = import.meta.env.VITE_API_URL;
+
+
 
 function Home() {
   const navigate = useNavigate()
@@ -15,27 +17,51 @@ function Home() {
   const [tasks, setTasks] = useState([])
 
   // Fetch lists from backend on mount
+  const fetchLists = async () => {
+  try {
+    setLoading(true)
+    const response = await fetch(`${API_URL}/api/lists`) // only one /api
+    const data = await response.json()
+    if (data.success) {
+      setLists(data.lists)
+    } else {
+      setError('Failed to load lists')
+    }
+  } catch (err) {
+    setError('Error connecting to server')
+    console.error(err)
+  } finally {
+    setLoading(false)
+  }
+}
+
+  // Fetch tasks for a specific list
+  const fetchTasks = async (listId) => {
+    try {
+      const response = await fetch(`${API_URL}/api/items/${listId}`)
+      const data = await response.json()
+      if (data.success) {
+        setTasks(data.items)
+      }
+    } catch (err) {
+      console.error('Error fetching tasks:', err)
+    }
+  }
+
+  // Fetch lists on component mount
   useEffect(() => {
     fetchLists()
   }, [])
 
-  const fetchLists = async () => {
-    try {
-      setLoading(true)
-      const response = await fetch(`${API_URL}/api/lists`)
-      const data = await response.json()
-      if (data.success) {
-        setLists(data.lists)
-      } else {
-        setError('Failed to load lists')
-      }
-    } catch (err) {
-      setError('Error connecting to server')
-      console.error(err)
-    } finally {
-      setLoading(false)
+  // Fetch tasks when activeList changes
+  useEffect(() => {
+    if (activeList) {
+      fetchTasks(activeList)
+    } else {
+      setTasks([])
     }
-  }
+  }, [activeList])
+
 
   const addList = async (title, description = '') => {
     try {
@@ -137,10 +163,11 @@ function Home() {
   const toggleTaskStatus = async (taskId, currentStatus) => {
     const newStatus = currentStatus === 'pending' ? 'completed' : 'pending'
     try {
+      const task = tasks.find(t => t.id === taskId)
       const response = await fetch(`${API_URL}/api/items/${taskId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
+        body: JSON.stringify({ description: task.description, status: newStatus })
       })
       const data = await response.json()
       if (data.success) {
@@ -158,7 +185,6 @@ function Home() {
       <main className="container mx-auto p-4 max-w-4xl">
         {/* Header with Logout Button */}
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-4xl font-bold text-gray-800">My To-Do Lists</h1>
           <div className="flex gap-4">
             <button
               onClick={() => setShowForm(!showForm)}
@@ -175,13 +201,7 @@ function Home() {
           </div>
         </div>
 
-        {/* Loading state */}
-        {loading && (
-          <div className="text-center py-12">
-            <p className="text-gray-600">Loading lists...</p>
-          </div>
-        )}
-
+       
         {/* Error state */}
         {error && (
           <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg">
