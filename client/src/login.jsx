@@ -2,7 +2,7 @@ import { useState } from 'react'
 import axios from 'axios'
 import { useNavigate, Link } from 'react-router-dom'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '')
 
 function Login() {
   const [name, setName] = useState('')
@@ -20,7 +20,7 @@ function Login() {
 
     try {
       const response = await axios.post(
-        `${API_URL}/login`,
+        `${API_URL}/api/login`,
         { name, password },
         { withCredentials: true }
       )

@@ -2,9 +2,8 @@ import Header from '../components/Header.jsx'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const API_URL = import.meta.env.VITE_API_URL;
-
-
+// Server root URL (no trailing slash). Set VITE_API_URL in Vercel to your Render backend URL.
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '')
 
 function Home() {
   const navigate = useNavigate()
@@ -21,6 +20,11 @@ const fetchLists = async () => {
   try {
     setLoading(true)
     const response = await fetch(`${API_URL}/api/lists`, { credentials: 'include' })
+    const contentType = response.headers.get('content-type')
+    if (!contentType || !contentType.includes('application/json')) {
+      setError('Server returned invalid response. Check that VITE_API_URL points to your Render backend.')
+      return
+    }
     const data = await response.json()
     if (data.success) {
       setLists(data.lists)
@@ -28,7 +32,7 @@ const fetchLists = async () => {
       setError('Failed to load lists')
     }
   } catch (err) {
-    setError('Error connecting to server')
+    setError('Error connecting to server. Set VITE_API_URL in Vercel to your Render backend URL.')
     console.error(err)
   } finally {
     setLoading(false)
