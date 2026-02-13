@@ -4,7 +4,7 @@ import { hashPassword, comparePassword } from './components/hash.js'
 import session from 'express-session'
 
 const app = express()
-const PORT = 5000
+const PORT = process.env.PORT || 5000
 
 import cors from "cors";
 
@@ -280,20 +280,33 @@ app.delete('/api/lists/:id', async (req, res) => {
   }
 })
 
-// ✅ ITEMS API ENDPOINTS
+// ✅ ITEMS API ENDPOINTS (used by Vercel frontend)
+
+// GET items by list ID
+app.get('/api/items/:listId', async (req, res) => {
+  const { listId } = req.params
+  try {
+    const result = await pool.query(
+      'SELECT id, list_id, description, status FROM items WHERE list_id = $1 ORDER BY id',
+      [listId]
+    )
+    res.json({ success: true, items: result.rows })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ success: false, message: 'Error fetching items' })
+  }
+})
 
 // CREATE new item
-app.post('/add-item', async (req, res) => {
-  const { list_id, description } = req.body
-  
+app.post('/api/items', async (req, res) => {
+  const { list_id, description, status } = req.body
   if (!list_id || !description) {
     return res.status(400).json({ success: false, message: 'list_id and description are required' })
   }
-
   try {
     const result = await pool.query(
       'INSERT INTO items (list_id, description, status) VALUES ($1, $2, $3) RETURNING *',
-      [list_id, description, 'pending']
+      [list_id, description, status || 'pending']
     )
     res.status(201).json({ success: true, item: result.rows[0] })
   } catch (err) {
@@ -302,11 +315,10 @@ app.post('/add-item', async (req, res) => {
   }
 })
 
-// UPDATE item status
-app.put('/edit-item/:id', async (req, res) => {
+// UPDATE item
+app.put('/api/items/:id', async (req, res) => {
   const { id } = req.params
   const { description, status } = req.body
-
   try {
     const result = await pool.query(
       'UPDATE items SET description=$1, status=$2 WHERE id=$3 RETURNING *',
@@ -320,9 +332,50 @@ app.put('/edit-item/:id', async (req, res) => {
 })
 
 // DELETE item
+app.delete('/api/items/:id', async (req, res) => {
+  const { id } = req.params
+  try {
+    await pool.query('DELETE FROM items WHERE id=$1', [id])
+    res.json({ success: true })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ success: false })
+  }
+})
+
+// Legacy item routes (optional, for backwards compatibility)
+app.post('/add-item', async (req, res) => {
+  const { list_id, description } = req.body
+  if (!list_id || !description) {
+    return res.status(400).json({ success: false, message: 'list_id and description are required' })
+  }
+  try {
+    const result = await pool.query(
+      'INSERT INTO items (list_id, description, status) VALUES ($1, $2, $3) RETURNING *',
+      [list_id, description, 'pending']
+    )
+    res.status(201).json({ success: true, item: result.rows[0] })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ success: false, message: 'Error creating item' })
+  }
+})
+app.put('/edit-item/:id', async (req, res) => {
+  const { id } = req.params
+  const { description, status } = req.body
+  try {
+    const result = await pool.query(
+      'UPDATE items SET description=$1, status=$2 WHERE id=$3 RETURNING *',
+      [description, status, id]
+    )
+    res.json({ success: true, item: result.rows[0] })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ success: false })
+  }
+})
 app.delete('/delete-item/:id', async (req, res) => {
   const { id } = req.params
-
   try {
     await pool.query('DELETE FROM items WHERE id=$1', [id])
     res.json({ success: true })

@@ -20,7 +20,7 @@ function Home() {
 const fetchLists = async () => {
   try {
     setLoading(true)
-    const response = await fetch(`${API_URL}/lists`) // remove extra /api
+    const response = await fetch(`${API_URL}/api/lists`, { credentials: 'include' })
     const data = await response.json()
     if (data.success) {
       setLists(data.lists)
@@ -39,7 +39,7 @@ const fetchLists = async () => {
   // Fetch tasks for a specific list
   const fetchTasks = async (listId) => {
     try {
-      const response = await fetch(`${API_URL}/api/items/${listId}`)
+      const response = await fetch(`${API_URL}/api/items/${listId}`, { credentials: 'include' })
       const data = await response.json()
       if (data.success) {
         setTasks(data.items)
@@ -69,7 +69,8 @@ const fetchLists = async () => {
       const response = await fetch(`${API_URL}/api/lists`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, description, status: 'pending' })
+        body: JSON.stringify({ title, description, status: 'pending' }),
+        credentials: 'include'
       })
       const data = await response.json()
       if (data.success) {
@@ -83,7 +84,8 @@ const fetchLists = async () => {
   const deleteList = async (listId) => {
     try {
       const response = await fetch(`${API_URL}/api/lists/${listId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        credentials: 'include'
       })
       const data = await response.json()
       if (data.success) {
@@ -100,7 +102,8 @@ const fetchLists = async () => {
       const response = await fetch(`${API_URL}/api/lists/${listId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, description })
+        body: JSON.stringify({ title, description }),
+        credentials: 'include'
       })
       const data = await response.json()
       if (data.success) {
@@ -119,7 +122,8 @@ const fetchLists = async () => {
       const response = await fetch(`${API_URL}/api/lists/${listId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: list.title, description: list.description, status: newStatus })
+        body: JSON.stringify({ title: list.title, description: list.description, status: newStatus }),
+        credentials: 'include'
       })
       const data = await response.json()
       if (data.success) {
@@ -135,7 +139,8 @@ const fetchLists = async () => {
       const response = await fetch(`${API_URL}/api/items`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ list_id: listId, description: taskDescription, status: 'pending' })
+        body: JSON.stringify({ list_id: listId, description: taskDescription, status: 'pending' }),
+        credentials: 'include'
       })
       const data = await response.json()
       if (data.success) {
@@ -150,7 +155,8 @@ const fetchLists = async () => {
   const deleteTask = async (taskId) => {
     try {
       const response = await fetch(`${API_URL}/api/items/${taskId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        credentials: 'include'
       })
       const data = await response.json()
       if (data.success) {
@@ -168,7 +174,8 @@ const fetchLists = async () => {
       const response = await fetch(`${API_URL}/api/items/${taskId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ description: task.description, status: newStatus })
+        body: JSON.stringify({ description: task.description, status: newStatus }),
+        credentials: 'include'
       })
       const data = await response.json()
       if (data.success) {
